@@ -87,7 +87,7 @@ class ErrorReport
 
   # Send email notification if needed
   def email_notification
-    return unless app.emailable? && should_email?
+    return unless app.emailable? && should_email? && @problem.notifiable?
     Mailer.err_notification(self).deliver_now
   rescue => e
     HoptoadNotifier.notify(e)

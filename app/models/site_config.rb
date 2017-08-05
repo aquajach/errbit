@@ -5,6 +5,8 @@ class SiteConfig
   include Mongoid::Document
   include Mongoid::Timestamps
 
+  field :notifiable_environments, type: Array, default: nil
+
   after_save :denormalize
 
   embeds_one :notice_fingerprinter, autobuild: true

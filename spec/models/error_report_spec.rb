@@ -305,6 +305,44 @@ describe ErrorReport do
         }.by(1)
       end
     end
+
+    context "with environment specific notification" do
+      let(:xml) do
+        Airbrake::Notice.new(
+            exception:    Exception.new,
+            api_key:      'APIKEY',
+            project_root: Rails.root,
+            environment_name: 'staging'
+        ).to_xml
+      end
+
+      context "as all" do
+        it "send email" do
+          SiteConfig.first.update(notifiable_environments: nil)
+          expect do
+            error_report.generate_notice!
+          end.to change{ActionMailer::Base.deliveries.size}.by(1)
+        end
+      end
+
+      context "as included" do
+        it "send email" do
+          SiteConfig.first.update(notifiable_environments: %w[Staging production])
+          expect do
+            error_report.generate_notice!
+          end.to change{ActionMailer::Base.deliveries.size}.by(1)
+        end
+      end
+
+      context "as not included" do
+        it "do not send email" do
+          SiteConfig.first.update(notifiable_environments: %w[production uat])
+          expect do
+            error_report.generate_notice!
+          end.to change{ActionMailer::Base.deliveries.size}.by(0)
+        end
+      end
+    end
   end
 
   describe "#valid?" do

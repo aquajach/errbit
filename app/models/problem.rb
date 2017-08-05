@@ -230,6 +230,12 @@ class Problem
     (app.issue_tracker_configured? && app.issue_tracker.type_tracker) || nil
   end
 
+  def notifiable?
+    SiteConfig.document.notifiable_environments.nil? ||
+      SiteConfig.document.notifiable_environments.map(&:downcase)
+          .include?(self.environment.downcase)
+  end
+
 private
 
   def attribute_count_descrease(name, value)
